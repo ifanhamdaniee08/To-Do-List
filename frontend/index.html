@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster - Modern Productivity Dashboard</title>
+    <!-- Pixel Operator Typography (Loaded from assets/pixel_operator) -->
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= AUTH VIEW (LOGIN / SIGN UP SPLIT SCREEN) ================= -->
+    <div id="auth-view" class="auth-wrapper active">
+        <div class="auth-split-card">
+
+            <!-- LEFT PANEL: LOGIN & SIGN UP FORMS -->
+            <div class="auth-form-panel">
+                <div class="brand-header-left">
+                    <img src="assets/images/logo.svg" alt="TaskMaster Logo" class="brand-logo-img">
+                    <div>
+                        <h2>Selamat Datang!</h2>
+                        <p>Masuk atau buat akun untuk memulai.</p>
+                    </div>
+                </div>
+
+                <!-- Tabs: Login In | Sign Up -->
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-target="login-form">Log In</button>
+                    <button class="tab-btn" data-target="register-form">Sign Up</button>
+                </div>
+
+                <!-- Alert Notification for Auth (Error / Warning / Success) -->
+                <div id="auth-alert" class="auth-alert hidden" role="alert">
+                    <div class="auth-alert-content">
+                        <svg class="auth-alert-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span id="auth-alert-msg" class="auth-alert-msg">Email atau password salah. Silakan periksa
+                            kembali!</span>
+                    </div>
+                    <button type="button" class="auth-alert-close" id="auth-alert-close"
+                        aria-label="Tutup peringatan">✕</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="input-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" required placeholder="nama@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                            <button type="button" class="password-toggle-btn" data-target="login-password"
+                                aria-label="Lihat atau sembunyikan kata sandi" title="Lihat Password">
+                                <svg class="eye-icon eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                                <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Masuk Sekarang</button>
+                </form>
+
+                <!-- Register Form (Sign Up) -->
+                <form id="register-form" class="auth-form hidden">
+                    <div class="input-group">
+                        <label for="reg-name">Nama Lengkap</label>
+                        <input type="text" id="reg-name" required placeholder="Budi Santoso">
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-email">Email Address</label>
+                        <input type="email" id="reg-email" required placeholder="nama@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="reg-password" required placeholder="••••••••">
+                            <button type="button" class="password-toggle-btn" data-target="reg-password"
+                                aria-label="Lihat atau sembunyikan kata sandi" title="Lihat Password">
+                                <svg class="eye-icon eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                                <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Daftar Akun Baru</button>
+                </form>
+
+                <div class="divider">
+                    <span>ATAU</span>
+                </div>
+
+                <div class="google-auth-container">
+                    <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID_HERE" data-context="signin"
+                        data-ux_mode="popup" data-callback="handleGoogleCallback" data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
+                        data-text="signin_with" data-size="large" data-logo_alignment="left">
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: BRAND MOTIVATION & ILLUSTRATION HERO -->
+            <div class="auth-hero-panel">
+                <div class="hero-brand-badge">
+                    <img src="assets/images/logo.svg" alt="Logo" class="badge-icon">
+                    <span class="badge-brand-name">TaskMaster</span>
+                </div>
+
+                <div class="hero-quote-content">
+                    <h2 class="hero-headline">Kelola Waktu & Capai Target Harianmu Lebih Terarah</h2>
+                    <p class="hero-quote">"Produktivitas bukan tentang bekerja tanpa henti, melainkan tentang fokus pada
+                        apa yang benar-benar bermakna."</p>
+                </div>
+
+                <!-- Productivity Illustration Image -->
+                <div class="hero-illustration-wrapper">
+                    <img src="assets/images/auth-illustration.svg" alt="Productivity Dashboard Illustration"
+                        class="hero-illustration-img">
+                </div>
+
+                <div class="hero-feature-tags">
+                    <div class="tag-item">
+                        <span class="tag-icon">⚡</span>
+                        <span>Smart To-do</span>
+                    </div>
+                    <div class="tag-item">
+                        <span class="tag-icon">📅</span>
+                        <span>Calendar View</span>
+                    </div>
+                    <div class="tag-item">
+                        <span class="tag-icon">🎯</span>
+                        <span>Project Goals</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= DASHBOARD APP VIEW ================= -->
+    <div id="app-view" class="dashboard-layout hidden">
+
+        <!-- SIDEBAR (SESUAI SKETSA) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <img src="assets/images/logo.svg" alt="Logo" style="width: 28px; height: 28px;">
+                    <span class="sidebar-brand-name">TaskMaster</span>
+                </div>
+                <div class="user-profile-widget">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff"
+                        alt="Avatar">
+                    <div class="user-details">
+                        <h3 id="user-name">Nama User</h3>
+                        <span class="user-label">Active User</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <span class="section-title">MENU</span>
+                    <ul class="nav-list">
+                        <li class="nav-item active" data-filter-cat="all">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M9 11l3 3L22 4" />
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                </svg>
+                            </span>
+                            <span class="nav-text">To-do</span>
+                            <span id="all-tasks-count" class="count-badge">0</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="menu-section">
+                    <div class="section-header">
+                        <div id="toggle-category-list-btn" class="section-title-wrap"
+                            title="Klik untuk sembunyikan/tampilkan daftar list">
+                            <span class="section-title">LIST</span>
+                            <span id="category-list-arrow" class="list-toggle-arrow">▾</span>
+                        </div>
+                        <button id="add-category-btn" class="icon-btn-mini" title="Add new list">+</button>
+                    </div>
+                    <ul id="category-list" class="nav-list">
+                        <li class="nav-item" data-filter-cat="Project">
+                            <span class="nav-icon">💼</span>
+                            <span class="nav-text">Project</span>
+                            <span class="cat-count" id="count-Project">0</span>
+                        </li>
+                        <li class="nav-item" data-filter-cat="Personal Project">
+                            <span class="nav-icon">📁</span>
+                            <span class="nav-text">Personal Project</span>
+                            <span class="cat-count" id="count-Personal">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-actions">
+                    <button id="logout-btn" class="logout-btn" title="Keluar dari akun">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Sign Out</span>
+                    </button>
+                    <button id="settings-btn" class="settings-btn" title="Pengaturan (Settings)">
+                        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges"
+                            class="pixel-icon">
+                            <!-- Pixel Gear Teeth -->
+                            <path
+                                d="M6 1h4v2H6V1zm0 12h4v2H6v-2zM1 6h2v4H1V6zm12 0h2v4h-2V6zM3 3h2v2H3V3zm8 0h2v2h-2V3zm-8 8h2v2H3v-2zm8 0h2v2h-2v-2z" />
+                            <!-- Pixel Gear Body -->
+                            <path
+                                d="M5 3h6v1H5V3zm-2 2h2v1H3V5zm8 0h2v1h-2V5zM2 6h1v4H2V6zm11 0h1v4h-1V6zm-10 4h2v1H3v-1zm8 0h2v1h-2v-1zm-6 2h6v1H5v-1z" />
+                            <!-- Pixel Axle Hole -->
+                            <path d="M7 7h2v2H7V7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebar-backdrop" class="sidebar-backdrop hidden"></div>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP BAR (TABS SESUAI SKETSA) -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Toggle Sidebar (Buka/Tutup ☰)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <nav class="tab-navigation">
+                        <button class="top-tab active" data-view="todo-view">To-do List</button>
+                        <button class="top-tab" data-view="calendar-view">Calender View</button>
+                        <button class="top-tab" data-view="project-view">Project</button>
+                        <button class="top-tab" data-view="notes-view">Notes</button>
+                    </nav>
+                </div>
+
+                <div class="top-bar-actions">
+                    <div class="search-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" id="task-search-input" placeholder="Search tasks...">
+                    </div>
+                    <button id="open-task-modal-btn" class="btn btn-primary btn-sm">
+                        <span>+ Add task</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- MAIN DYNAMIC VIEWPORT -->
+            <main class="content-viewport">
+
+                <!-- 1. TO-DO LIST VIEW (SESUAI REFERENSI KANAN: MODERN TABLE/NOTION STYLE) -->
+                <section id="todo-view" class="view-panel active">
+                    <div class="view-header-bar">
+                        <div class="current-filter-info">
+                            <h2 id="current-view-title">All Tasks</h2>
+                            <span id="current-task-count" class="badge-pill">0 tasks</span>
+                        </div>
+                        <div class="quick-filters">
+                            <button class="filter-pill active" data-filter="all">All</button>
+                            <button class="filter-pill" data-filter="active">Active</button>
+                            <button class="filter-pill" data-filter="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <!-- ACTIVE TASKS SECTION -->
+                    <div class="task-group-container">
+                        <div class="group-header" id="toggle-active-tasks">
+                            <span class="toggle-icon">▼</span>
+                            <h3>Active Tasks</h3>
+                            <span id="active-tasks-badge" class="badge-counter">0</span>
+                        </div>
+                        <div id="active-tasks-table" class="modern-table-container">
+                            <div class="table-header-row">
+                                <div class="col-check"></div>
+                                <div class="col-title">Task Name</div>
+                                <div class="col-status">Status</div>
+                                <div class="col-cat">Category</div>
+                                <div class="col-date">Due Date</div>
+                                <div class="col-actions">Actions</div>
+                            </div>
+                            <div id="active-tasks-rows" class="table-rows">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPLETED TASKS SECTION -->
+                    <div class="task-group-container completed-group">
+                        <div class="group-header" id="toggle-completed-tasks">
+                            <span class="toggle-icon">▼</span>
+                            <h3>Completed Tasks</h3>
+                            <span id="completed-tasks-badge" class="badge-counter">0</span>
+                        </div>
+                        <div id="completed-tasks-table" class="modern-table-container">
+                            <div class="table-header-row">
+                                <div class="col-check"></div>
+                                <div class="col-title">Task Name</div>
+                                <div class="col-status">Status</div>
+                                <div class="col-cat">Category</div>
+                                <div class="col-date">Due Date</div>
+                                <div class="col-actions">Actions</div>
+                            </div>
+                            <div id="completed-tasks-rows" class="table-rows">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. PRODUCTIVITY STATISTICS & INSIGHTS SECTION -->
+                    <div class="task-group-container analytics-group" id="productivity-analytics-section">
+                        <div class="group-header" id="toggle-productivity-stats"
+                            title="Klik untuk sembunyikan/tampilkan statistik">
+                            <span class="toggle-icon">▼</span>
+                            <h3>
+                                <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor"
+                                    shape-rendering="crispEdges" class="pixel-icon"
+                                    style="margin-right: 6px; color: var(--primary);">
+                                    <path d="M1 12h12v1H1v-1zm1-3h2v3H2V9zm3-4h2v7H5V5zm3-3h2v10H8V2zm3 5h2v5h-2V7z" />
+                                </svg>
+                                Statistik & Ringkasan Produktivitas
+                            </h3>
+                            <span class="badge-counter" id="analytics-overview-badge">Insights</span>
+                        </div>
+                        <div id="productivity-stats-content" class="modern-table-container">
+                            <div id="productivity-stats-container" class="productivity-stats-wrap">
+                                <!-- Injected via analytics.js -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. CALENDAR VIEW (SESUAI REFERENSI KIRI & KANAN TIMELINE) -->
+                <section id="calendar-view" class="view-panel hidden">
+                    <div class="calendar-layout-wrapper">
+                        <!-- Left: Main Calendar Area -->
+                        <div class="calendar-main-area">
+                            <div class="calendar-controls">
+                                <div class="cal-nav">
+                                    <button id="cal-prev-btn" class="cal-btn cal-btn-nav" title="Bulan Sebelumnya">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <button id="cal-today-btn" class="cal-btn cal-btn-today">Today</button>
+                                    <button id="cal-next-btn" class="cal-btn cal-btn-nav" title="Bulan Berikutnya">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <h2 id="calendar-month-year">September 2026</h2>
+                                </div>
+                                <div class="cal-controls-right">
+                                    <div class="cal-filter-wrap">
+                                        <label for="cal-project-filter" class="cal-filter-label">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                            </svg>
+                                            Proyek:
+                                        </label>
+                                        <select id="cal-project-filter" class="cal-filter-select">
+                                            <option value="all">Semua Proyek</option>
+                                        </select>
+                                    </div>
+                                    <div class="cal-legend">
+                                        <span class="legend-item"><span class="dot dot-todo"></span> To-Do</span>
+                                        <span class="legend-item"><span class="dot dot-progress"></span> In
+                                            Progress</span>
+                                        <span class="legend-item"><span class="dot dot-completed"></span>
+                                            Completed</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="calendar-grid-container">
+                                <div class="calendar-weekdays">
+                                    <div class="weekday-sun">Sun</div>
+                                    <div>Mon</div>
+                                    <div>Tue</div>
+                                    <div>Wed</div>
+                                    <div>Thu</div>
+                                    <div>Fri</div>
+                                    <div class="weekday-sat">Sat</div>
+                                </div>
+                                <div id="calendar-days-grid" class="calendar-days-grid">
+                                    <!-- Injected via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Day Schedule Timeline Side Panel (Real-Time Current Time Indicator) -->
+                        <aside id="day-timeline-panel" class="day-timeline-panel hidden">
+                            <div class="timeline-panel-header">
+                                <div class="timeline-header-top">
+                                    <div class="timeline-day-row">
+                                        <h3 id="timeline-day-title">Sabtu, 12 Sep 2026</h3>
+                                        <span id="timeline-today-badge" class="timeline-today-badge hidden">Today</span>
+                                    </div>
+                                    <div class="timeline-header-actions">
+                                        <button id="timeline-add-task-btn" class="timeline-quick-add-btn"
+                                            title="Tambah tugas di hari ini">+ Tugas</button>
+                                        <button id="close-timeline-panel-btn" class="timeline-close-btn"
+                                            title="Tutup panel">&times;</button>
+                                    </div>
+                                </div>
+                                <div class="timeline-sub-hint">🕒 Klik baris jam untuk jadwalkan tugas</div>
+                            </div>
+
+                            <div class="timeline-panel-body">
+                                <!-- All Day Section -->
+                                <div class="timeline-all-day-section">
+                                    <div class="all-day-header" id="toggle-all-day-btn">
+                                        <div class="all-day-title-wrap">
+                                            <span class="all-day-toggle-icon">▾</span>
+                                            <span class="all-day-label">All day</span>
+                                        </div>
+                                        <span id="all-day-count" class="all-day-count-badge">0</span>
+                                    </div>
+                                    <div id="timeline-all-day-list" class="all-day-list">
+                                        <!-- Injected via JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Hourly Grid Timeline with Live Red Line -->
+                                <div class="timeline-hours-scroll" id="timeline-hours-scroll">
+                                    <div id="timeline-hours-container" class="timeline-hours-container">
+                                        <!-- Real-time Current Time Indicator ("Red Line") -->
+                                        <div id="timeline-current-time-line" class="timeline-current-time-line hidden">
+                                            <span id="current-time-label" class="current-time-label">12:09 PM</span>
+                                            <div class="current-time-dot"></div>
+                                            <div class="current-time-bar"></div>
+                                        </div>
+
+                                        <!-- Hourly rows injected via JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <div id="timeline-backdrop" class="timeline-backdrop hidden"></div>
+                    </div>
+                </section>
+
+                <!-- 3. PROJECT VIEW -->
+                <section id="project-view" class="view-panel hidden">
+                    <div class="view-header-bar"
+                        style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h2>Projects Overview</h2>
+                            <p class="subtitle">Track task progress across your work and personal projects.</p>
+                        </div>
+                        <button id="project-add-btn" class="btn btn-outline btn-sm" title="Tambah Proyek Baru">
+                            <span>+ Tambah Proyek</span>
+                        </button>
+                    </div>
+                    <div id="projects-grid" class="projects-grid">
+                        <!-- Injected via JS -->
+                    </div>
+                </section>
+
+                <!-- 4. NOTES VIEW (MULTI-DOCUMENT NOTES SYSTEM) -->
+                <section id="notes-view" class="view-panel hidden">
+                    <div class="notes-app-layout">
+                        <!-- Left Panel: Notes List / Sidebar -->
+                        <div class="notes-sidebar-panel">
+                            <div class="notes-sidebar-header">
+                                <div class="notes-title-wrap">
+                                    <h3>Catatan Saya</h3>
+                                    <span id="notes-total-badge" class="badge-counter">0</span>
+                                </div>
+                                <button id="btn-create-note" class="btn btn-primary btn-sm" title="Buat Catatan Baru">
+                                    <span>+ Catatan Baru</span>
+                                </button>
+                            </div>
+                            <div class="notes-search-box">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                <input type="text" id="notes-search-input" placeholder="Cari catatan...">
+                            </div>
+                            <div class="notes-project-filter-bar">
+                                <label for="notes-project-filter" class="notes-filter-label">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                    </svg>
+                                    Proyek:
+                                </label>
+                                <select id="notes-project-filter" class="notes-project-filter-select">
+                                    <option value="all">Semua Proyek</option>
+                                </select>
+                            </div>
+                            <div id="notes-list-items" class="notes-list-items">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Note Editor Area -->
+                        <div class="notes-editor-panel" id="notes-editor-panel">
+                            <!-- Header Toolbar -->
+                            <div class="notes-editor-toolbar">
+                                <div class="notes-editor-meta">
+                                    <span id="note-save-status" class="note-save-status">
+                                        <span class="status-dot"></span> Tersimpan otomatis
+                                    </span>
+                                    <span class="meta-separator">•</span>
+                                    <span id="note-word-count" class="note-word-count">0 kata</span>
+                                    <span class="meta-separator">•</span>
+                                    <span id="note-date-info" class="note-date-info">-</span>
+                                </div>
+                                <div class="notes-editor-actions">
+                                    <button id="btn-copy-note" class="note-action-btn"
+                                        title="Salin Catatan ke Clipboard">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                        <span>Salin</span>
+                                    </button>
+                                    <button id="btn-delete-note" class="note-action-btn btn-danger-action"
+                                        title="Hapus Catatan">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                        <span>Hapus</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Note Title / Header (Notion Style) -->
+                            <div class="note-title-container">
+                                <input type="text" id="note-title-input" class="note-title-input"
+                                    placeholder="Judul Catatan..." maxlength="150">
+                            </div>
+
+                            <!-- Note Metadata & Actions Bar (Project Link & Convert to Tasks) -->
+                            <div class="note-meta-bar">
+                                <div class="note-project-selector-wrap">
+                                    <label for="note-project-select" class="note-project-label">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
+                                            </path>
+                                        </svg>
+                                        Proyek:
+                                    </label>
+                                    <select id="note-project-select" class="note-project-select">
+                                        <!-- Injected via JS -->
+                                    </select>
+                                </div>
+                                <button id="btn-convert-note-to-task" class="btn-convert-task"
+                                    title="Konversi baris catatan ini menjadi tugas di To-Do List">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                    </svg>
+                                    <span>⚡ Jadikan Tugas ke To-Do</span>
+                                </button>
+                            </div>
+
+                            <!-- Note Content Body -->
+                            <div class="note-body-container">
+                                <textarea id="note-body-textarea" class="note-body-textarea"
+                                    placeholder="Mulai mengetik catatan, materi, rencana, ide, atau daftar to-do di sini..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Empty Editor State (If no note exists) -->
+                        <div id="notes-empty-editor" class="notes-empty-editor hidden">
+                            <div class="empty-editor-content">
+                                <div class="empty-icon">📝</div>
+                                <h3>Belum Ada Catatan</h3>
+                                <p>Pilih catatan dari daftar di sebelah kiri, atau buat catatan baru untuk mulai
+                                    mengetik.</p>
+                                <button id="btn-empty-create-note" class="btn btn-primary btn-sm">
+                                    <span>+ Buat Catatan Pertama</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT TASK MODAL ================= -->
+    <div id="task-modal" class="modal-overlay hidden">
+        <div class="modal-dialog glass-panel">
+            <div class="modal-header">
+                <h3 id="modal-title">New Task</h3>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <form id="modal-task-form">
+                <input type="hidden" id="task-edit-id">
+                <div class="input-group">
+                    <label for="modal-task-title">Task Title *</label>
+                    <input type="text" id="modal-task-title" required placeholder="e.g. Design website prototype">
+                </div>
+                <div class="input-group">
+                    <label for="modal-task-desc">Description</label>
+                    <textarea id="modal-task-desc" rows="3" placeholder="Additional details or notes..."></textarea>
+                </div>
+                <div class="modal-form-row">
+                    <div class="input-group">
+                        <label for="modal-task-status">Status</label>
+                        <select id="modal-task-status">
+                            <option value="todo">New task</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="modal-task-cat">Category / List</label>
+                        <select id="modal-task-cat">
+                            <option value="Project">Project</option>
+                            <option value="Personal Project">Personal Project</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-form-row">
+                    <div class="input-group">
+                        <label for="modal-task-date">Due Date</label>
+                        <input type="date" id="modal-task-date">
+                    </div>
+                    <div class="input-group">
+                        <label for="modal-task-time">Due Time (Jam)</label>
+                        <input type="time" id="modal-task-time">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-modal-btn" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= ADD NEW LIST / PROJECT MODAL (POP BOX DI TENGAH) ================= -->
+    <div id="category-modal" class="modal-overlay hidden">
+        <div class="modal-dialog glass-panel" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3>Tambah List / Proyek Baru</h3>
+                <button id="close-category-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <form id="category-modal-form">
+                <div class="input-group">
+                    <label for="new-category-name">Nama List / Proyek *</label>
+                    <input type="text" id="new-category-name" required
+                        placeholder="Contoh: Project Basis Data, Skripsi..." autocomplete="off">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-category-modal-btn" class="btn btn-outline">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Proyek</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= CONVERT NOTE TO TASKS MODAL (ACTION-TO-TASK WIZARD) ================= -->
+    <div id="note-to-task-modal" class="modal-overlay hidden">
+        <div class="modal-dialog glass-panel" style="max-width: 540px;">
+            <div class="modal-header">
+                <div class="modal-title-with-icon">
+                    <span class="modal-lightning-icon">⚡</span>
+                    <div>
+                        <h3 id="note-to-task-modal-title">Jadikan Tugas ke To-Do</h3>
+                        <p class="modal-sub-desc">Pilih poin catatan yang ingin dimasukkan ke To-Do List & Kalender.</p>
+                    </div>
+                </div>
+                <button id="close-note-to-task-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <form id="note-to-task-form">
+                <!-- Target Options (Project & Due Date) -->
+                <div class="modal-form-row" style="margin-bottom: 16px;">
+                    <div class="input-group">
+                        <label for="convert-target-project">Proyek Tujuan</label>
+                        <select id="convert-target-project">
+                            <!-- Injected via JS -->
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="convert-target-date">Tenggat (Opsional)</label>
+                        <input type="date" id="convert-target-date">
+                    </div>
+                </div>
+
+                <!-- Parsed Tasks Checklist -->
+                <div class="convert-tasks-container">
+                    <div class="convert-tasks-header">
+                        <span class="convert-tasks-count" id="convert-detected-count">Poin Terdeteksi: 0</span>
+                        <div class="convert-select-all-wrap">
+                            <button type="button" id="btn-convert-select-all" class="btn-text-action">Pilih
+                                Semua</button>
+                            <span>•</span>
+                            <button type="button" id="btn-convert-deselect-all" class="btn-text-action">Batal
+                                Semua</button>
+                        </div>
+                    </div>
+                    <div id="convert-task-items-list" class="convert-task-items-list">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="button" id="cancel-note-to-task-btn" class="btn btn-outline">Batal</button>
+                    <button type="submit" id="submit-convert-to-tasks-btn" class="btn btn-primary">
+                        <span>⚡ Tambahkan ke To-Do List</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= SETTINGS MODAL (COMING SOON) ================= -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-dialog glass-panel settings-modal-dialog" style="max-width: 520px;">
+            <div class="modal-header">
+                <div class="modal-title-with-icon">
+                    <span class="modal-settings-icon">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges"
+                            class="pixel-icon">
+                            <path
+                                d="M6 1h4v2H6V1zm0 12h4v2H6v-2zM1 6h2v4H1V6zm12 0h2v4h-2V6zM3 3h2v2H3V3zm8 0h2v2h-2V3zm-8 8h2v2H3v-2zm8 0h2v2h-2v-2zM5 3h6v1H5V3zm-2 2h2v1H3V5zm8 0h2v1h-2V5zM2 6h1v4H2V6zm11 0h1v4h-1V6zm-10 4h2v1H3v-1zm8 0h2v1h-2v-1zm-6 2h6v1H5v-1zM7 7h2v2H7V7z" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>Pengaturan Sistem</h3>
+                        <p class="modal-sub-desc">Konfigurasi preferensi dan kustomisasi dashboard Anda.</p>
+                    </div>
+                </div>
+                <button id="close-settings-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-modal-body">
+                <!-- Coming Soon Hero Banner -->
+                <div class="settings-coming-soon-banner">
+                    <div class="coming-soon-badge-pill">
+                        <span class="pulse-dot"></span>
+                        <span>COMING SOON</span>
+                    </div>
+                    <h4>Fitur Pengaturan Sedang Disiapkan! </h4>
+                    <p>
+                        Modul pengaturan personalisasi lengkap sedang dalam tahap pengembangan aktif. Di pembaruan
+                        berikutnya, Anda dapat menyesuaikan berbagai preferensi berikut:
+                    </p>
+                </div>
+
+                <!-- Preview Setting Cards -->
+                <div class="settings-preview-grid">
+                    <div class="settings-preview-item">
+                        <div class="settings-preview-icon bg-purple-subtle">
+                            🎨
+                        </div>
+                        <div class="settings-preview-info">
+                            <div class="settings-preview-title-row">
+                                <h5>Tampilan & Tema</h5>
+                                <span class="badge-tag-soon">Segera</span>
+                            </div>
+                            <p>Mode Gelap (Dark Mode), tema kontras, & mode font retro pixel.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-preview-item">
+                        <div class="settings-preview-icon bg-amber-subtle">
+                            🔔
+                        </div>
+                        <div class="settings-preview-info">
+                            <div class="settings-preview-title-row">
+                                <h5>Notifikasi & Pengingat</h5>
+                                <span class="badge-tag-soon">Segera</span>
+                            </div>
+                            <p>Pengingat otomatis tenggat waktu tugas sebelum terlambat via browser.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-preview-item">
+                        <div class="settings-preview-icon bg-blue-subtle">
+                            👤
+                        </div>
+                        <div class="settings-preview-info">
+                            <div class="settings-preview-title-row">
+                                <h5>Profil & Keamanan</h5>
+                                <span class="badge-tag-soon">Segera</span>
+                            </div>
+                            <p>Ganti foto profil avatar, nama tampilan, dan manajemen kata sandi akun.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-preview-item">
+                        <div class="settings-preview-icon bg-emerald-subtle">
+                            💾
+                        </div>
+                        <div class="settings-preview-info">
+                            <div class="settings-preview-title-row">
+                                <h5>Cadangan & Sinkronisasi</h5>
+                                <span class="badge-tag-soon">Segera</span>
+                            </div>
+                            <p>Ekspor seluruh tugas dan catatan ke format JSON atau sinkron kalender.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 18px;">
+                    <button type="button" id="dismiss-settings-btn" class="btn btn-primary"
+                        style="width: 100%; justify-content: center;">
+                        <span>Saya Mengerti 👍</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Task Interactive Hover Preview Card -->
+    <div id="cal-hover-card" class="cal-hover-card hidden"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Notification message</div>
+
+    <script src="analytics.js"></script>
+    <script src="settings.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

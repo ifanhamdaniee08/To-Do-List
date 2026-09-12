@@ -1,0 +1,42 @@
+services:
+  # 1. Database Service: PostgreSQL 15 Alpine (Lightweight)
+  db:
+    image: postgres:15-alpine
+    container_name: taskmaster_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: todolist_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Port 5434 di laptop (pgAdmin) -> Port 5432 di dalam container
+      - "5434:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d todolist_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Web Application Service: Flask API + Frontend Static UI
+  web:
+    build: .
+    container_name: taskmaster_webapp
+    restart: always
+    ports:
+      # Port 8080 di laptop Anda -> Port 5000 di container
+      - "8080:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/todolist_db
+      SECRET_KEY: taskmaster_secret_key_production_12345
+      JWT_SECRET_KEY: taskmaster_jwt_secret_key_production_67890
+    volumes:
+      - ./frontend:/app/frontend
+      - ./backend:/app/backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

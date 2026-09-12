@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1E3A8A" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background Rounded Shield -->
+  <rect x="10" y="10" width="80" height="80" rx="24" fill="url(#logo-grad)" filter="url(#shadow)" />
+  <!-- Inner Dynamic Accent -->
+  <path d="M25 52 L42 69 L76 34" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="76" cy="34" r="5" fill="#93C5FD" />
+</svg>
