@@ -39,7 +39,10 @@ function init() {
     if (typeof initSettings === 'function') {
         initSettings();
     }
-    if (currentToken) {
+    initGoogleAuth();
+    if (new URLSearchParams(window.location.search).has('logout')) {
+        logout(false);
+    } else if (currentToken) {
         fetchMe();
     } else {
         switchMainView('auth-view');
@@ -54,9 +57,20 @@ function showToast(message, isError = false) {
     setTimeout(() => toastEl.classList.remove('show'), 3000);
 }
 
+function safeEscape(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    }[tag] || tag));
+}
+
 function showAuthAlert(message, isError = true) {
     if (!authAlert || !authAlertMsg) return;
-    authAlertMsg.textContent = message;
+    authAlertMsg.innerHTML = message;
     authAlert.className = `auth-alert ${isError ? 'auth-alert-error' : 'auth-alert-success'}`;
     authAlert.classList.remove('hidden');
 
@@ -181,6 +195,179 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
+// --- AUTHENTICATION STATE & GOOGLE GIS ---
+let currentGoogleAuthIntent = 'login'; // 'login' or 'register'
+
+function updatePasswordStrength(password) {
+    const fillEl = document.getElementById('strength-bar-fill');
+    const badgeEl = document.getElementById('strength-badge');
+    if (!fillEl || !badgeEl) return;
+
+    if (!password) {
+        fillEl.style.width = '0%';
+        fillEl.style.backgroundColor = 'transparent';
+        badgeEl.className = 'strength-badge';
+        badgeEl.textContent = 'Minimal 6 karakter';
+        return;
+    }
+
+    if (password.length < 6) {
+        fillEl.style.width = '25%';
+        fillEl.style.backgroundColor = '#ef4444';
+        badgeEl.className = 'strength-badge weak';
+        badgeEl.textContent = 'Terlalu Pendek (< 6)';
+        return;
+    }
+
+    let score = 0;
+    if (password.length >= 6) score += 1;
+    if (password.length >= 8) score += 1;
+    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+    if (/\d/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    if (score <= 2) {
+        fillEl.style.width = '35%';
+        fillEl.style.backgroundColor = '#ef4444';
+        badgeEl.className = 'strength-badge weak';
+        badgeEl.textContent = 'Lemah';
+    } else if (score <= 4) {
+        fillEl.style.width = '70%';
+        fillEl.style.backgroundColor = '#f59e0b';
+        badgeEl.className = 'strength-badge medium';
+        badgeEl.textContent = 'Sedang';
+    } else {
+        fillEl.style.width = '100%';
+        fillEl.style.backgroundColor = '#10b981';
+        badgeEl.className = 'strength-badge strong';
+        badgeEl.textContent = 'Sangat Kuat';
+    }
+}
+
+function resetPasswordStrength() {
+    updatePasswordStrength('');
+}
+
+function setButtonLoading(btn, isLoading, loadingText = '') {
+    if (!btn) return;
+    const btnText = btn.querySelector('.btn-text');
+    const spinner = btn.querySelector('.btn-spinner');
+    if (isLoading) {
+        btn.disabled = true;
+        if (btnText) {
+            btn.dataset.originalText = btnText.textContent;
+            if (loadingText) btnText.textContent = loadingText;
+        }
+        if (spinner) spinner.classList.remove('hidden');
+    } else {
+        btn.disabled = false;
+        if (btnText && btn.dataset.originalText) {
+            btnText.textContent = btn.dataset.originalText;
+        }
+        if (spinner) spinner.classList.add('hidden');
+    }
+}
+
+function switchAuthTab(targetFormId, prefillEmail = '') {
+    clearAuthAlert();
+    resetPasswordStrength();
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.dataset.target === targetFormId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    document.querySelectorAll('.auth-form').forEach(f => {
+        f.classList.add('hidden');
+        f.classList.remove('shake');
+    });
+
+    const targetForm = document.getElementById(targetFormId);
+    if (targetForm) {
+        targetForm.classList.remove('hidden');
+    }
+
+    if (targetFormId === 'register-form') {
+        currentGoogleAuthIntent = 'register';
+        if (prefillEmail) {
+            const regEmailInput = document.getElementById('reg-email');
+            if (regEmailInput) regEmailInput.value = prefillEmail;
+        }
+        renderGoogleRegisterButton();
+    } else {
+        currentGoogleAuthIntent = 'login';
+        if (prefillEmail) {
+            const loginEmailInput = document.getElementById('login-email');
+            if (loginEmailInput) loginEmailInput.value = prefillEmail;
+        }
+        renderGoogleLoginButton();
+    }
+}
+
+function renderGoogleLoginButton() {
+    const el = document.getElementById('login-google-btn');
+    if (!el || !window.google?.accounts?.id) return;
+    try {
+        google.accounts.id.renderButton(el, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            width: 320,
+            click_listener: () => {
+                currentGoogleAuthIntent = 'login';
+            }
+        });
+    } catch (e) {
+        console.warn('Google GIS login render note:', e);
+    }
+}
+
+function renderGoogleRegisterButton() {
+    const el = document.getElementById('register-google-btn');
+    if (!el || !window.google?.accounts?.id) return;
+    try {
+        google.accounts.id.renderButton(el, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'signup_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            width: 320,
+            click_listener: () => {
+                currentGoogleAuthIntent = 'register';
+            }
+        });
+    } catch (e) {
+        console.warn('Google GIS register render note:', e);
+    }
+}
+
+function initGoogleAuth() {
+    if (!window.google?.accounts?.id) {
+        setTimeout(initGoogleAuth, 250);
+        return;
+    }
+    const clientId = '740584970640-kr0kd1lgsio5kj9f5t0m7brat43n12v7.apps.googleusercontent.com';
+    try {
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCallback,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+        renderGoogleLoginButton();
+        renderGoogleRegisterButton();
+    } catch (e) {
+        console.warn('Google Identity Services initialization:', e);
+    }
+}
+
 // --- AUTHENTICATION LOGIC ---
 async function handleAuth(url, body, isRegister = false) {
     clearAuthAlert();
@@ -202,7 +389,25 @@ async function handleAuth(url, body, isRegister = false) {
 
         if (!response.ok) {
             const errorMsg = data.message || (isRegister ? 'Registrasi gagal. Silakan periksa formulir pendaftaran.' : 'Email atau password yang Anda masukkan salah. Silakan periksa kembali!');
-            showAuthAlert(errorMsg, true);
+            
+            // BR-01: User belum terdaftar saat mencoba Login (404)
+            if (!isRegister && response.status === 404) {
+                const typedEmail = body.email || '';
+                showAuthAlert(
+                    `${safeEscape(errorMsg)} <br/><button type="button" class="auth-inline-link" onclick="switchAuthTab('register-form', '${safeEscape(typedEmail)}')">Daftar Akun Baru Sekarang &rarr;</button>`,
+                    true
+                );
+            }
+            // BR-07: Email sudah terdaftar saat Sign Up (409)
+            else if (isRegister && response.status === 409) {
+                const typedEmail = body.email || '';
+                showAuthAlert(
+                    `${safeEscape(errorMsg)} <br/><button type="button" class="auth-inline-link" onclick="switchAuthTab('login-form', '${safeEscape(typedEmail)}')">Beralih ke Halaman Log In &rarr;</button>`,
+                    true
+                );
+            } else {
+                showAuthAlert(safeEscape(errorMsg), true);
+            }
             showToast(errorMsg, true);
             return;
         }
@@ -211,8 +416,10 @@ async function handleAuth(url, body, isRegister = false) {
             showAuthAlert('Registrasi berhasil! Silakan masuk dengan akun Anda.', false);
             showToast('Registrasi berhasil! Silakan masuk.');
 
+            const registeredEmail = body.email || '';
             // Reset seluruh input pendaftaran dan ikon mata kembali ke awal
             registerForm.reset();
+            resetPasswordStrength();
             const regPwToggle = registerForm.querySelector('.password-toggle-btn');
             if (regPwToggle) {
                 regPwToggle.classList.remove('visible');
@@ -223,8 +430,7 @@ async function handleAuth(url, body, isRegister = false) {
             if (regPwInput) regPwInput.type = 'password';
 
             setTimeout(() => {
-                const loginTabBtn = document.querySelector('.tab-btn[data-target="login-form"]');
-                if (loginTabBtn) loginTabBtn.click();
+                switchAuthTab('login-form', registeredEmail);
             }, 1200);
         } else {
             clearAuthAlert();
@@ -239,14 +445,60 @@ async function handleAuth(url, body, isRegister = false) {
 }
 
 async function handleGoogleCallback(response) {
+    clearAuthAlert();
+    const activeTab = document.querySelector('.tab-btn.active')?.dataset?.target;
+    const isRegister = (currentGoogleAuthIntent === 'register') || (activeTab === 'register-form');
+    const endpoint = isRegister ? `${API_BASE}/auth/google/register` : `${API_BASE}/auth/google/login`;
+
     try {
-        const data = await apiFetch(`${API_BASE}/auth/google`, {
+        const res = await fetch(endpoint, {
             method: 'POST',
-            body: JSON.stringify({ credential: response.credential })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                credential: response.credential,
+                action: isRegister ? 'register' : 'login'
+            })
         });
+
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            data = {};
+        }
+
+        if (!res.ok) {
+            const errorMsg = data.message || (isRegister ? 'Pendaftaran dengan akun Google gagal.' : 'Gagal masuk menggunakan akun Google.');
+
+            // BR-04: User belum terdaftar saat mencoba Login Google (404)
+            if (res.status === 404) {
+                showAuthAlert(
+                    `${safeEscape(errorMsg)} <br/><button type="button" class="auth-inline-link" onclick="switchAuthTab('register-form')">Daftar Akun Baru Sekarang &rarr;</button>`,
+                    true
+                );
+            }
+            // BR-09: Akun Google sudah terdaftar saat mencoba Register Google (409)
+            else if (res.status === 409) {
+                showAuthAlert(
+                    `${safeEscape(errorMsg)} <br/><button type="button" class="auth-inline-link" onclick="switchAuthTab('login-form')">Beralih ke Halaman Log In &rarr;</button>`,
+                    true
+                );
+            } else {
+                showAuthAlert(safeEscape(errorMsg), true);
+            }
+            showToast(errorMsg, true);
+            return;
+        }
+
+        if (isRegister) {
+            showToast('Pendaftaran akun Google berhasil! Selamat datang.');
+        }
         loginSuccess(data);
     } catch (e) {
         console.error('Google Auth Failed:', e);
+        const errorMsg = 'Gagal memproses autentikasi Google. Silakan periksa koneksi Anda.';
+        showAuthAlert(errorMsg, true);
+        showToast(errorMsg, true);
     }
 }
 
@@ -2429,14 +2681,10 @@ function setupEventListeners() {
     // Auth Tabs (Login / Register)
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            clearAuthAlert();
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            document.querySelectorAll('.auth-form').forEach(f => {
-                f.classList.add('hidden');
-                f.classList.remove('shake');
-            });
-            document.getElementById(e.target.dataset.target).classList.remove('hidden');
+            const targetId = e.currentTarget.dataset.target || e.target.dataset.target;
+            if (targetId) {
+                switchAuthTab(targetId);
+            }
         });
     });
 
@@ -2465,40 +2713,54 @@ function setupEventListeners() {
         });
     });
 
+    // Password Strength Meter listener
+    const regPasswordInput = document.getElementById('reg-password');
+    if (regPasswordInput) {
+        regPasswordInput.addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+        });
+    }
+
     // Login Form Submit
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Memverifikasi...';
+        const submitBtn = document.getElementById('login-submit-btn') || loginForm.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true, 'Memverifikasi...');
 
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
         try {
             await handleAuth(`${API_BASE}/auth/login`, { email, password });
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            setButtonLoading(submitBtn, false);
         }
     });
 
     // Register Form Submit
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const submitBtn = registerForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Mendaftarkan...';
+        const submitBtn = document.getElementById('register-submit-btn') || registerForm.querySelector('button[type="submit"]');
 
         const full_name = document.getElementById('reg-name').value.trim();
         const email = document.getElementById('reg-email').value.trim();
         const password = document.getElementById('reg-password').value;
+
+        if (password.length < 6) {
+            showAuthAlert('Kata sandi minimal 6 karakter. Silakan lengkapi kata sandi Anda.', true);
+            showToast('Kata sandi minimal 6 karakter.', true);
+            const regPw = document.getElementById('reg-password');
+            if (regPw) {
+                regPw.classList.add('input-error');
+                regPw.focus();
+            }
+            return;
+        }
+
+        setButtonLoading(submitBtn, true, 'Mendaftarkan...');
         try {
             await handleAuth(`${API_BASE}/auth/register`, { full_name, email, password }, true);
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            setButtonLoading(submitBtn, false);
         }
     });
 
@@ -2895,6 +3157,7 @@ function escapeHTML(str) {
 window.toggleTaskStatus = toggleTaskStatus;
 window.deleteTask = deleteTask;
 window.openEditModal = openEditModal;
+window.switchAuthTab = switchAuthTab;
 window.handleGoogleCallback = handleGoogleCallback;
 window.openStatusPopover = openStatusPopover;
 window.handleCheckboxToggle = handleCheckboxToggle;

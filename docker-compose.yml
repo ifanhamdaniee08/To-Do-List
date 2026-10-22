@@ -25,12 +25,13 @@ services:
     container_name: taskmaster_webapp
     restart: always
     ports:
-      # Port 8080 di laptop Anda -> Port 5000 di container
-      - "8080:5000"
+      # Port 5000 di laptop Anda -> Port 5000 di container (sesuai Google OAuth Authorized Origins)
+      - "5000:5000"
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/todolist_db
       SECRET_KEY: taskmaster_secret_key_production_12345
       JWT_SECRET_KEY: taskmaster_jwt_secret_key_production_67890
+      GOOGLE_CLIENT_ID: 740584970640-kr0kd1lgsio5kj9f5t0m7brat43n12v7.apps.googleusercontent.com
     volumes:
       - ./frontend:/app/frontend
       - ./backend:/app/backend

@@ -1,4 +1,4 @@
-﻿# 📋 TaskMaster — Modern Productivity & To-Do Dashboard
+# 📋 TaskMaster — Modern Productivity & To-Do Dashboard
 
 <div align="center">
 
@@ -239,7 +239,9 @@ To-Do-List/
 | :---: | :--- | :--- | :---: |
 | `POST` | `/api/auth/register` | Mendaftarkan akun lokal baru | Publik |
 | `POST` | `/api/auth/login` | Masuk dengan email & password (mengembalikan JWT) | Publik |
-| `POST` | `/api/auth/google` | Autentikasi via token Google OAuth 2.0 | Publik |
+| `POST` | `/api/auth/google/login` | Masuk menggunakan akun Google (wajib sudah terdaftar) | Publik |
+| `POST` | `/api/auth/google/register` | Mendaftar akun baru menggunakan akun Google | Publik |
+| `POST` | `/api/auth/google` | Endpoint kompatibilitas Google OAuth | Publik |
 | `GET` | `/api/tasks` | Mengambil seluruh tugas milik pengguna aktif | Diperlukan (JWT) |
 | `POST` | `/api/tasks` | Membuat tugas baru | Diperlukan (JWT) |
 | `PUT` | `/api/tasks/<id>` | Memperbarui detail / status tugas | Diperlukan (JWT) |
